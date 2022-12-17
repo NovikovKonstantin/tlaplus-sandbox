@@ -4,13 +4,14 @@ EXTENDS Integers, Sequences, TLC, FiniteSets
 
 (*S задается в каждой модели отдельно.*)
 (*Делаем модель чище, убирая из нее хардкодные элементы.*)
-CONSTANT S
+CONSTANT S, DEBUG
 
 (*Обязательная проверка, что в S есть достаточное количество разных элементов, которое вообще имеет смысл оценивать моделью.*)
 ASSUME Cardinality(S) >= 4
+ASSUME DEBUG \in BOOLEAN
 
 (*--algorithm duplicates
-
+    
     variable
         seq \in S \X S \X S \X S; (*Массивы со всеми комбинациями элементов S.*)
         index = 1;
@@ -43,6 +44,14 @@ ASSUME Cardinality(S) >= 4
             
     end define;
 
+    (*Debug-процедура, которую можно использовать для вывода текста при debug'e.*)
+    (*Такие процедуры должны быть помещены внутри Pluscal-блока над begin-секцией алгоритма.*)
+    macro print_if_debug(str) begin
+        if DEBUG then
+            print str
+        end if;
+    end macro;
+    
     begin
       Iterate:
         while index <= Len(seq) do
@@ -53,8 +62,10 @@ ASSUME Cardinality(S) >= 4
           end if;
           index := index + 1;
         end while;
+        print_if_debug("End Iterate");
+        
     end algorithm; *)
-\* BEGIN TRANSLATION (chksum(pcal) = "7bc20367" /\ chksum(tla) = "f240f783")
+\* BEGIN TRANSLATION (chksum(pcal) = "fb0bc55d" /\ chksum(tla) = "3f43d78e")
 VARIABLES seq, index, seen, is_unique, pc
 
 (* define statement *)
@@ -98,7 +109,10 @@ Iterate == /\ pc = "Iterate"
                                  /\ seen' = seen
                       /\ index' = index + 1
                       /\ pc' = "Iterate"
-                 ELSE /\ pc' = "Done"
+                 ELSE /\ IF DEBUG
+                            THEN /\ PrintT("End Iterate")
+                            ELSE /\ TRUE
+                      /\ pc' = "Done"
                       /\ UNCHANGED << index, seen, is_unique >>
            /\ seq' = seq
 
