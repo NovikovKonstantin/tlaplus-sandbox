@@ -24,10 +24,12 @@ S == 1..10
             /\ index \in 1..Len(seq)+1
  
         (*Инвариант проверяет, что в seq есть/отсутствуют дубликаты.*)
-        (*ВАЖНО: Решение неточное и введено сейчас для построения рабочего кода.*)
-        (*В будущем оно будет заменено.*)
         IsUnique(s) == 
-            /\ Cardinality(seen) = Len(s)
+            \A i, j \in 1..Len(s): (* Перебираем все комбинации i и j.*)
+                (*Для всех i != j должно быть истинным seg[i] != seg[j].*)
+                (*Оператор # - это односимвольный эквивалент /= (не равно).*)
+                (*Вывод ниже можно записать как i /= j => seq /= seq[j].*)
+                i # j => seq[i] # seq[j]
             
         (*Инвариант проверяет корректность алгоритма после его завершения.*)
         IsCorrect == 
@@ -47,7 +49,7 @@ S == 1..10
           index := index + 1;
         end while;
     end algorithm; *)
-\* BEGIN TRANSLATION (chksum(pcal) = "8ced01e0" /\ chksum(tla) = "92158502")
+\* BEGIN TRANSLATION (chksum(pcal) = "7bc20367" /\ chksum(tla) = "f240f783")
 VARIABLES seq, index, seen, is_unique, pc
 
 (* define statement *)
@@ -60,10 +62,12 @@ TypeInvariant ==
     /\ index \in 1..Len(seq)+1
 
 
-
-
 IsUnique(s) ==
-    /\ Cardinality(seen) = Len(s)
+    \A i, j \in 1..Len(s):
+
+
+
+        i # j => seq[i] # seq[j]
 
 
 IsCorrect ==
